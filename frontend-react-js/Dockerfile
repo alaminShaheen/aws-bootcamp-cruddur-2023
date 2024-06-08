@@ -1,0 +1,9 @@
+FROM node:16.18
+
+WORKDIR /frontend-react-js
+
+COPY . .
+
+RUN npm install
+
+CMD ["npm", "start"]

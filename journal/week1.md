@@ -351,7 +351,7 @@ networks:
 We are going to use Postgres and DynamoDB local in future labs
 We can bring them in as containers and reference them externally
 
-Lets integrate the following into our existing docker compose file:
+Let's integrate the following into our existing docker compose file:
 
 ### Postgres
 
@@ -371,6 +371,48 @@ volumes:
   db:
     driver: local
 ```
+
+This section of the Docker Compose file defines a service for running a PostgreSQL database and a named volume for data persistence.  
+
+`db`:
+Defines a service named db, which will run a PostgreSQL database.  
+
+`image: postgres:13-alpine`  
+**Purpose**: Specifies the Docker image to use for this service.  
+`postgres:13-alpine`: Uses the PostgreSQL image with version 13, based on the Alpine Linux distribution. The Alpine version is typically smaller and more lightweight.
+
+`restart: always`  
+**Purpose**: Configures the restart policy for the container.
+always: Ensures that the container will always restart if it stops, making the service more resilient and ensuring high availability.
+
+```yaml
+environment:
+  - POSTGRES_USER=postgres
+  - POSTGRES_PASSWORD=password
+```
+  **Purpose**: Sets environment variables for the PostgreSQL container.  
+  `POSTGRES_USER`: Defines the username for the PostgreSQL database. Here, it's set to postgres.  
+  `POSTGRES_PASSWORD`: Defines the password for the PostgreSQL database. Here, it's set to password.
+```yaml
+ports:
+  - '5432:5432'
+```
+  **Purpose**: Maps the host port to the container port, allowing external access to the PostgreSQL database.
+  '5432:5432': Maps port 5432 on the host machine to port 5432 in the container, which is the default port for PostgreSQL.  
+```yaml
+volumes:
+  - db:/var/lib/postgresql/data
+```
+  **Purpose**: Defines a volume for data persistence.  
+  `db:/var/lib/postgresql/data`: Mounts a named volume db to the container path /var/lib/postgresql/data. This ensures that the database data is stored outside the container’s filesystem, providing persistence across container restarts and re-creations.
+```yaml
+volumes:
+  db:
+    driver: local
+```
+  **Purpose**: Defines named volumes for use in the services.  
+  `db`: The name of the volume.  
+  `driver`: `local`: Specifies the use of the local volume driver, which is the default. This means the volume is stored on the local Docker host.
 
 To install the postgres client into Gitpod
 
@@ -401,8 +443,43 @@ services:
     working_dir: /home/dynamodblocal
 ```
 
+This section of the Docker Compose file defines a service for running a local instance of Amazon DynamoDB.
+
 Example of using DynamoDB local
 https://github.com/100DaysOfCloud/challenge-dynamodb-local
+
+`dynamodb-local`:
+Defines a service named dynamodb-local, which will run a local instance of DynamoDB.
+
+`user: root`: Specifies the user under which the container should run. Setting it to root gives the container root privileges. This can be necessary for certain operations, but it also has security implications, so it should be used with caution.
+
+`-jar DynamoDBLocal.jar -sharedDb -dbPath ./data`: Specifies the command to run within the container.  
+`-jar DynamoDBLocal.jar`: Tells Java to run the DynamoDBLocal.jar file.  
+`-sharedDb`: Uses a single database file, allowing multiple processes to share the database.  
+`-dbPath ./data`: Specifies the path where the database files will be stored inside the container.  
+
+`image: "amazon/dynamodb-local:latest"`: Specifies the Docker image to use for this service.  
+
+`amazon/dynamodb-local:latest`: Uses the latest version of the amazon/dynamodb-local image, which provides a local instance of DynamoDB.  
+
+`container_name: dynamodb-local`: Sets a custom name for the container. This can be useful for easily identifying and managing the container.  
+```yaml
+  ports:
+    - "8000:8000"
+```
+Maps the host port to the container port, allowing external access to the DynamoDB local instance.  
+  `8000:8000`: Maps port 8000 on the host machine to port 8000 in the container, which is the default port for DynamoDB Local.  
+```yaml
+  volumes:
+    - "./docker/dynamodb:/home/dynamodblocal/data"
+```
+Mounts a directory from the host to the container, providing persistence and shared storage.  
+
+`./docker/dynamodb:/home/dynamodblocal/data`: Maps the ./docker/dynamodb directory on the host to the /home/dynamodblocal/data directory inside the container. This ensures that data stored by DynamoDB Local is persisted on the host machine.  
+
+
+`working_dir: /home/dynamodblocal`: Sets the working directory inside the container. This is the directory where the command will be executed.
+/home/dynamodblocal: Sets the working directory to /home/dynamodblocal inside the container.
 
 ## Volumes
 

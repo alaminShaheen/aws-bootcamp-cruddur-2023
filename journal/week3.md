@@ -341,6 +341,7 @@ const onsubmit_confirm_code = async (event) => {
   }
   return false
 }
+```
 
 ## Authenticating Server Side
 

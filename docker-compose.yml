@@ -7,6 +7,12 @@ services:
       OTEL_SERVICE_NAME: "${HONEYCOMB_SERVICE_NAME}"
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
       OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+      FLASK_DEBUG: 1
+
+      # For Flask-AWSCognito
+      AWS_DEFAULT_REGION: "ca-central-1"
+      AWS_COGNITO_USER_POOL_ID: "ca-central-1_jhq6897GB"
+      AWS_COGNITO_USER_POOL_CLIENT_ID: "2stl3jgj1acamjt2sfnum0t4p6"
     build: ./backend-flask
     ports:
       - "4567:4567"
@@ -15,10 +21,12 @@ services:
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "http://localhost:4567"
+
+      # For aws-amplify
       REACT_APP_AWS_PROJECT_REGION: "ca-central-1"
       REACT_APP_AWS_COGNITO_REGION: "ca-central-1"
-      REACT_APP_AWS_USER_POOLS_ID: "ca-central-1_oUB1eIKvQ"
-      REACT_APP_CLIENT_ID: "7r61j4lukihj0tn1nf7d1faoaj"
+      REACT_APP_AWS_USER_POOLS_ID: "ca-central-1_jhq6897GB"
+      REACT_APP_AWS_CLIENT_ID: "2stl3jgj1acamjt2sfnum0t4p6"
     build: ./frontend-react-js
     ports:
       - "3000:3000"

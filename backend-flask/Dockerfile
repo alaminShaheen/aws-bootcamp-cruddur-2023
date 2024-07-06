@@ -1,5 +1,8 @@
 FROM python:3.10-slim-buster
 
+# Define environment variable for Python buffering
+ENV PYTHONUNBUFFERED=1
+
 # Inside the container make and change current working directory to /backend-flask
 WORKDIR /backend-flask
 

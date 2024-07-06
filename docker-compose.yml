@@ -13,6 +13,9 @@ services:
       AWS_DEFAULT_REGION: "ca-central-1"
       AWS_COGNITO_USER_POOL_ID: "ca-central-1_jhq6897GB"
       AWS_COGNITO_USER_POOL_CLIENT_ID: "2stl3jgj1acamjt2sfnum0t4p6"
+
+      # For database
+      DATABASE_CONNECTION_URL: "postgresql://root:postgres2021@db:5432/cruddur"
     build: ./backend-flask
     ports:
       - "4567:4567"
@@ -43,11 +46,12 @@ services:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
   db:
-    image: postgres:13-alpine
+    image: postgres:16.3-alpine
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=postgres2021
+      - POSTGRES_DB=cruddur
     ports:
       - '5432:5432'
     volumes:

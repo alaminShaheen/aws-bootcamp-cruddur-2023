@@ -5,6 +5,7 @@ from flask import request
 from flask_cors import CORS, cross_origin
 
 from lib.cognito_token_verification import TokenVerifyError, CognitoTokenVerification
+from db.database import database_engine, create_db_and_tables
 from services.create_activity import *
 from services.create_message import *
 from services.create_reply import *
@@ -19,12 +20,17 @@ from utils.utils import extract_access_token
 
 app = Flask(__name__)
 app.debug = True
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_CONNECTION_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 token_verifier = CognitoTokenVerification(
 	user_pool_id=os.getenv("AWS_COGNITO_USER_POOL_ID"),
 	user_pool_client_id=os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
 	region=os.getenv("AWS_DEFAULT_REGION")
 )
+
+# create all database tables
+create_db_and_tables()
 
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
@@ -83,7 +89,7 @@ def data_home():
 	try:
 		token_verifier.verify(access_token)
 		app.logger.debug("Authenticated")
-		data = HomeActivities.run()
+		data = HomeActivities.run(app)
 		return data, 200
 	except TokenVerifyError as e:
 		app.logger.debug("Unauthenticated")

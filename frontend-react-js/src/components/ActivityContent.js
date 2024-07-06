@@ -22,21 +22,49 @@ export default function ActivityContent(props) {
   };
 
   const format_time_expires_at = (value) => {
-    // format: 2050-11-20 18:32:47 +0000
-    const future = DateTime.fromISO(value)
-    const now     = DateTime.now()
-    const diff_mins = future.diff(now, 'minutes').toObject().minutes;
-    const diff_hours = future.diff(now, 'hours').toObject().hours;
-    const diff_days = future.diff(now, 'days').toObject().days;
+    let future;
 
-    if (diff_hours > 24.0){
-      return `${Math.floor(diff_days)}d`;
-    } else if (diff_hours < 24.0 && diff_hours > 1.0) {
-      return `${Math.floor(diff_hours)}h`;
-    } else if (diff_hours < 1.0) {
-      return `${Math.round(diff_mins)}m`;
+    // Try to parse as ISO 8601 first
+    if (DateTime.fromISO(value).isValid) {
+        future = DateTime.fromISO(value);
+    } else if (DateTime.fromHTTP(value).isValid) { // Then try to parse as HTTP-date
+        future = DateTime.fromHTTP(value);
+    } else {
+        throw new Error("Invalid date format");
     }
-  };
+
+    const now = DateTime.now();
+    const diff = future.diff(now, ['days', 'hours', 'minutes']).toObject();
+
+    const diff_days = diff.days;
+    const diff_hours = diff.hours;
+    const diff_minutes = diff.minutes;
+
+    if (diff_days >= 1.0) {
+        return `${Math.floor(diff_days)}d`;
+    } else if (diff_hours >= 1.0) {
+        return `${Math.floor(diff_hours)}h`;
+    } else {
+        return `${Math.round(diff_minutes)}m`;
+    }
+};
+
+  // const format_time_expires_at = (value) => {
+  //   // format: 2050-11-20 18:32:47 +0000
+  //   const future = DateTime.fromISO(value)
+  //   const now     = DateTime.now()
+  //   const diff_mins = future.diff(now, 'minutes').toObject().minutes;
+  //   const diff_hours = future.diff(now, 'hours').toObject().hours;
+  //   const diff_days = future.diff(now, 'days').toObject().days;
+  //
+  //   if (diff_hours > 24.0){
+  //     return `${Math.floor(diff_days)}d`;
+  //   } else if (diff_hours < 24.0 && diff_hours > 1.0) {
+  //     return `${Math.floor(diff_hours)}h`;
+  //   } else if (diff_hours < 1.0) {
+  //     return `${Math.round(diff_mins)}m`;
+  //   }
+  // };
 
   let expires_at;
   if (props.activity.expires_at) {

@@ -10,3 +10,6 @@ opentelemetry-instrumentation-requests
 aws-xray-sdk
 requests
 python-jose
+
+sqlmodel
+psycopg2-binary
